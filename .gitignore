@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+kafka_data
+state
+DS_Store
+.env
