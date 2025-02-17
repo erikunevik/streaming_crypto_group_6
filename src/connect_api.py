@@ -7,7 +7,7 @@ def get_latest_coin_data(symbol="BTC"):
 
     headers = {
         "Accepts": "application/json",
-        "X-CMC_PRO_API_KEY": COINMARKET_API,
+        "X-CMC_PRO_API_KEY":COINMARKET_API,
     }
 
     parameters = {

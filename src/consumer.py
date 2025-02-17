@@ -1,5 +1,14 @@
-from quixstreams import Application
 from pprint import pprint
+from quixstreams import Application
+from quixstreams.sinks.community.postgresql import PostgreSQLSink
+
+from constants import (
+    POSTGRES_USER,
+    POSTGRES_DBNAME,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+)
 
 def retrieve_btc_info(btc):
     quote_data = btc["quote"]["SEK"]
@@ -15,21 +24,34 @@ def retrieve_btc_info(btc):
         "Last updated": quote_data["last_updated"],
         
     }
+def create_postgres_sink():
+    sink = PostgreSQLSink(
+        host=POSTGRES_HOST,
+        port=POSTGRES_PORT,
+        dbname=POSTGRES_DBNAME,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+        table_name="bitcoin",
+        schema_auto_update=True,
+    )
+
+    return sink
 
 def main():
     app = Application(
         broker_address="localhost:9092",
-        consumer_group="message_consumers",
+        consumer_group="crypto_consumers",
         auto_offset_reset="earliest",
     )
 
     crypto_topic = app.topic(name="crypto", value_deserializer="json")
-
     streaming_data = app.dataframe(topic=crypto_topic)
-
     streaming_data = streaming_data.apply(retrieve_btc_info)
-
     streaming_data.update(lambda btc_output: (pprint(btc_output), print()))
+
+    postgres_sink = create_postgres_sink()
+    
+    streaming_data.sink(postgres_sink)
 
     # Keep the application running
     app.run()
