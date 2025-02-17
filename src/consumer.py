@@ -10,7 +10,7 @@ from constants import (
     POSTGRES_PORT,
 )
 
-def retrieve_btc_info(btc):
+def retrieve_coins_info(btc):
     quote_data = btc["quote"]["SEK"]
     return {         
         "Price": round(quote_data["price"], 4),
@@ -31,7 +31,7 @@ def create_postgres_sink():
         dbname=POSTGRES_DBNAME,
         user=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
-        table_name="bitcoin",
+        table_name="quotes_coins",
         schema_auto_update=True,
     )
 
@@ -49,9 +49,14 @@ def main():
     
     streaming_data = app.dataframe(topic=crypto_topic)
     
-    streaming_data = streaming_data.apply(retrieve_btc_info)
+    # transformation
     
-    #streaming_data.update(lambda btc_output: (pprint(btc_output), print()))
+    streaming_data = streaming_data.apply(retrieve_coins_info)
+    
+    streaming_data.update(lambda btc_output: (pprint(btc_output), print()))
+    
+    # sink postgres
+   
     postgres_sink = create_postgres_sink()
     
     streaming_data.sink(postgres_sink)
