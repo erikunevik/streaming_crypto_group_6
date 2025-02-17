@@ -44,11 +44,14 @@ def main():
         auto_offset_reset="earliest",
     )
 
-    crypto_topic = app.topic(name="crypto", value_deserializer="json")
-    streaming_data = app.dataframe(topic=crypto_topic)
-    streaming_data = streaming_data.apply(retrieve_btc_info)
-    streaming_data.update(lambda btc_output: (pprint(btc_output), print()))
 
+    crypto_topic = app.topic(name="crypto", value_deserializer="json")
+    
+    streaming_data = app.dataframe(topic=crypto_topic)
+    
+    streaming_data = streaming_data.apply(retrieve_btc_info)
+    
+    #streaming_data.update(lambda btc_output: (pprint(btc_output), print()))
     postgres_sink = create_postgres_sink()
     
     streaming_data.sink(postgres_sink)
