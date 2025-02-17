@@ -1,5 +1,6 @@
 from quixstreams import Application
 from pprint import pprint
+#from quixstreams.sinks.community.postgresql import PostgreSQLSink
 
 def retrieve_btc_info(btc):
     quote_data = btc["quote"]["SEK"]
@@ -30,6 +31,9 @@ def main():
     streaming_data = streaming_data.apply(retrieve_btc_info)
 
     streaming_data.update(lambda btc_output: (pprint(btc_output), print()))
+
+    # sink to postgres
+
 
     # Keep the application running
     app.run()
