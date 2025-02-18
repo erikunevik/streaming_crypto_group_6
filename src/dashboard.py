@@ -10,8 +10,12 @@ from sqlalchemy import create_engine
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
 from currencies import currencies_dict
+from charts import line_chart
 
-connection = connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
+
+
+
+connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
     
 motor = create_engine(connection)
     
@@ -33,9 +37,9 @@ def board():
     
     if currency_choice == "SEK":
         st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["SEK"]).iloc[-1]:,.2f} SEK", border=True)
-        st.markdown("# Price graph")
+        #st.markdown("# Price graph")
         #TODO: Update this from its own module
-        st.line_chart(df["Price"]*currencies_dict["SEK"])
+        #st.line_chart(df["Price"]*currencies_dict["SEK"])
     elif currency_choice == "NOK":
         st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["NOK"]).iloc[-1]:,.2f} NOK", border=True)
     elif currency_choice == "DKK":
@@ -47,6 +51,16 @@ def board():
     
     st.markdown("# See the latest data")
     st.dataframe(df.tail())  
+ 
+    
+    price_chart1 = line_chart(x= df["timestamp"], y= df["Percentage change in 7 days"], title="Percentage change in 7 days")
+    price_chart2 = line_chart(x= df["timestamp"], y= df["Percentage change in 1 hour"], title="Percentage change in 1 hour")
+    price_chart3 = line_chart(x= df.index, y= df["Percentage change in 24 hours"], title="Percentage change in 24 hours")
+    
+    st.pyplot(price_chart2)
+    st.pyplot(price_chart1)
+    st.pyplot(price_chart3)
+    
     
     
     
