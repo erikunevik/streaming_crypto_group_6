@@ -43,7 +43,7 @@ def board():
     else:
         st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["EUR"]).iloc[-1]:,.2f} EUR", border=True)
 
-    st.image("src/husky.jpg", caption="Husky Dog", use_container_width=True)
+    st.image("husky.jpg", caption="Husky Dog", use_container_width=True)
     
     st.markdown("# See the latest data")
     st.dataframe(df.tail())  

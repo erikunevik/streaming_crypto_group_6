@@ -2,7 +2,7 @@ from requests import Session
 from constants import COINMARKET_API
 import json
 
-def get_latest_coin_data(symbol="BTC"):
+def get_latest_coin_data(symbol='BTC'):
     api_url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
 
     headers = {
@@ -12,7 +12,7 @@ def get_latest_coin_data(symbol="BTC"):
 
     parameters = {
         "symbol": symbol,
-        "convert": "SEK",
+        "convert": "USD",
     }
 
     session = Session()
@@ -21,7 +21,10 @@ def get_latest_coin_data(symbol="BTC"):
     response = session.get(api_url, params=parameters)
 
     if response.status_code == 200:
-        return json.loads(response.text)["data"][symbol]
+        return json.loads(response.text)["data"]
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
+        
+
+print(get_latest_coin_data('BTC,SOL'))
