@@ -15,9 +15,12 @@ def get_latest_exchange_rate():
 
     return json.loads(response.text)["rates"]
 
-currencies_dict = {
-    "SEK": 10.72,
-    "DKK": 7.34,
-    "NOK" : 11.74,
-    "EUR" : 0.96
-}
+# currencies_dict = {
+#     "SEK": 10.72,
+#     "DKK": 7.34,
+#     "NOK" : 11.74,
+#     "EUR" : 0.96
+# }
+
+
+print(get_latest_exchange_rate()["SEK"])

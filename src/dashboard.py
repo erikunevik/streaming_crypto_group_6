@@ -9,7 +9,7 @@ POSTGRES_USER,
 from sqlalchemy import create_engine
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
-from currencies import currencies_dict
+from currencies import get_latest_exchange_rate
 from charts import line_chart, pie_chart
 
 
@@ -31,28 +31,31 @@ def import_dashboard(quotes):
 def board():
     
     df = import_dashboard("SELECT * FROM quotes_coins;")
+
+    st.markdown("# Crypto currency dashboard")
     
-    st.markdown("# Bitcoin dashboard")
+    currency_choice = st.selectbox("Choose crypto", ["Bitcoin","Solana"])
     currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
+
     
     if currency_choice == "SEK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["SEK"]).iloc[-1]:,.2f} SEK", border=True)
-        #st.markdown("# Price graph")
-        #TODO: Update this from its own module
-        #st.line_chart(df["Price"]*currencies_dict["SEK"])
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*get_latest_exchange_rate()["SEK"]).iloc[-1]:,.2f} SEK", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*get_latest_exchange_rate()["SEK"], title="Current price")
+        st.pyplot(price_chart0)
     elif currency_choice == "NOK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["NOK"]).iloc[-1]:,.2f} NOK", border=True)
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*get_latest_exchange_rate()["NOK"]).iloc[-1]:,.2f} NOK", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*get_latest_exchange_rate()["NOK"], title="Current price")
+        st.pyplot(price_chart0)
     elif currency_choice == "DKK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["DKK"]).iloc[-1]:,.2f} DKK", border=True)
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*get_latest_exchange_rate()["DKK"]).iloc[-1]:,.2f} DKK", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*get_latest_exchange_rate()["DKK"], title="Current price")
+        st.pyplot(price_chart0)
     else:
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["EUR"]).iloc[-1]:,.2f} EUR", border=True)
-
-    st.image("husky.jpg", caption="Husky Dog", use_container_width=True)
+        st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"], title="Current price")
+        st.pyplot(price_chart0)
     
-    st.markdown("# See the latest data")
-    st.dataframe(df.tail())  
- 
-    
+    st.markdown("# Percent change")
     price_chart1 = line_chart(x= df["timestamp"], y= df["Percentage change in 7 days"], title="Percentage change in 7 days")
     price_chart2 = line_chart(x= df["timestamp"], y= df["Percentage change in 1 hour"], title="Percentage change in 1 hour")
     price_chart3 = line_chart(x= df.index, y= df["Percentage change in 24 hours"], title="Percentage change in 24 hours")
@@ -62,15 +65,14 @@ def board():
     st.pyplot(price_chart3)
     
     pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
-    
-    # pie_chart_df = pie_chart_df.reset_index(drop=True) 
-    # new_row_index = 'The_rest'
-    # pie_chart_df.loc[new_row_index] = 100 - pie_chart_df.loc[0] - pie_chart_df.loc[1]
-    
+
     market_cap = pie_chart(labels=pie_chart_df["Name"], sizes=pie_chart_df["Market cap dominance"], title="Market capitalization")
-    
-    st.pyplot(market_cap)    
-    
+    st.pyplot(market_cap)
+ 
+    st.markdown("# Dataframe")
+    st.dataframe(df.tail())  
+ 
+    st.image("husky.jpg", caption="Husky Dog", use_container_width=True)
     
 if __name__== "__main__":
     board()
