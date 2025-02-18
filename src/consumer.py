@@ -22,9 +22,10 @@ def retrieve_coins_info(coin):
         "Percentage change in 1 hour": quote_data["percent_change_1h"],
         "Percentage change in 24 hours": quote_data["percent_change_24h"],
         "Percentage change in 7 days": quote_data["percent_change_7d"],
+        "Percentage change in 30 days": quote_data["percent_change_30d"],
         "Last updated": quote_data["last_updated"],
-        
     }
+
 def create_postgres_sink():
     sink = PostgreSQLSink(
         host=POSTGRES_HOST,
