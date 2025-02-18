@@ -10,12 +10,13 @@ from constants import (
     POSTGRES_PORT,
 )
 
-def retrieve_coins_info(btc):
-    quote_data = btc["quote"]["SEK"]
-    return {         
+def retrieve_coins_info(coin):
+    quote_data = coin["quote"]["USD"]
+    return {    
+        "Name": coin["name"],         
         "Price": round(quote_data["price"], 4),
-        "Total supply": btc["total_supply"],
-        "Max supply": btc.get("max_supply"),
+        "Total supply": coin["total_supply"],
+        "Max supply": coin.get("max_supply"),
         "Market cap": quote_data["market_cap"],
         "Market cap dominance": quote_data["market_cap_dominance"],
         "Percentage change in 1 hour": quote_data["percent_change_1h"],
