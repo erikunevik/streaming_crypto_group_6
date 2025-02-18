@@ -6,42 +6,49 @@ POSTGRES_PASSWORD,
 POSTGRES_PORT,
 POSTGRES_USER,    
 )
-
 from sqlalchemy import create_engine
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
+from currencies import currencies_dict
+
+connection = connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
+    
+motor = create_engine(connection)
+    
+refresh = st_autorefresh(interval=1000*10, limit=100)
 
 def import_dashboard(quotes):
-    
-    connection = connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
-    
-    motor = create_engine(connection)
-    
-    refresh = st_autorefresh(interval=1000*10, limit=100)
-    
     with motor.connect() as conn:
         df = pd.read_sql(quotes, conn)
     
     return df
 
+#def latest
 def board():
     
     df = import_dashboard("SELECT * FROM quotes_coins;")
     
     st.markdown("# Bitcoin dashboard")
+    currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
     
-    st.image("husky.jpg", caption="Husky Dog", use_container_width=True)
+    if currency_choice == "SEK":
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["SEK"]).iloc[-1]:,.2f} SEK", border=True)
+        st.markdown("# Price graph")
+        #TODO: Update this from its own module
+        st.line_chart(df["Price"]*currencies_dict["SEK"])
+    elif currency_choice == "NOK":
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["NOK"]).iloc[-1]:,.2f} NOK", border=True)
+    elif currency_choice == "DKK":
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["DKK"]).iloc[-1]:,.2f} DKK", border=True)
+    else:
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["EUR"]).iloc[-1]:,.2f} EUR", border=True)
+
+    st.image("src/husky.jpg", caption="Husky Dog", use_container_width=True)
     
     st.markdown("# See the latest data")
-    
     st.dataframe(df.tail())  
     
     
     
 if __name__== "__main__":
     board()
-    
-        
-        
-    
-
