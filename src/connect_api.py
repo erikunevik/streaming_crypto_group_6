@@ -12,7 +12,7 @@ def get_latest_coin_data(symbol='BTC'):
 
     parameters = {
         "symbol": symbol,
-        "convert": "USD",
+        "convert": "EUR",
     }
 
     session = Session()
