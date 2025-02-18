@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
 from currencies import currencies_dict
-from charts import line_chart
+from charts import line_chart, pie_chart
 
 
 
@@ -61,8 +61,17 @@ def board():
     st.pyplot(price_chart1)
     st.pyplot(price_chart3)
     
+    pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
     
+    # pie_chart_df = pie_chart_df.reset_index(drop=True) 
+    # new_row_index = 'The_rest'
+    # pie_chart_df.loc[new_row_index] = 100 - pie_chart_df.loc[0] - pie_chart_df.loc[1]
+    
+    market_cap = pie_chart(labels=pie_chart_df["Name"], sizes=pie_chart_df["Market cap dominance"], title="Market capitalization")
+    
+    st.pyplot(market_cap)    
     
     
 if __name__== "__main__":
     board()
+   
