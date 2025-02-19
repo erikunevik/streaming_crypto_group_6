@@ -15,6 +15,8 @@ from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
+
 st.set_page_config(layout="wide")
 
 connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
@@ -24,6 +26,7 @@ motor = create_engine(connection)
 refresh = st_autorefresh(interval=1000 * 10, limit=100)
 
 
+
 def import_dashboard(quotes):
     with motor.connect() as conn:
         df = pd.read_sql(quotes, conn)
@@ -31,7 +34,7 @@ def import_dashboard(quotes):
     return df
 
 
-# def latest
+   
 def board():
     df = import_dashboard("SELECT * FROM quotes_coins;")
     df["price SEK"] = df["Price"] * currencies_dict["SEK"]
@@ -43,7 +46,22 @@ def board():
 
     st.markdown("# Crypto currency dashboard")
     st.divider()
-    # ADD LAST UPDATED HERE
+   
+
+
+#  Function to fetch the latest timestamp
+    def get_latest_update():
+        query = "SELECT MAX(timestamp) AS latest_update FROM quotes_coins;"
+        df = pd.read_sql_query(query, motor)
+        return df["latest_update"][0] if not df.empty else "No data available"
+
+
+
+#  Display the latest timestamp
+    latest_update = get_latest_update()
+    st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
+
+
     st.divider()
     crypto_choice = st.selectbox("Choose crypto", ["Bitcoin", "Solana"])
     currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
