@@ -11,7 +11,7 @@ from constants import (
 )
 
 def retrieve_coins_info(coin):
-    quote_data = coin["quote"]["USD"]
+    quote_data = coin["quote"]["EUR"]
     return {    
         "Name": coin["name"],         
         "Price": round(quote_data["price"], 4),
