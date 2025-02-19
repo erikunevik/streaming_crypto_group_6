@@ -12,6 +12,8 @@ from streamlit_autorefresh import st_autorefresh
 from currencies import currencies_dict
 from charts import line_chart, pie_chart
 from pathlib import Path
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
@@ -53,15 +55,44 @@ def board():
         st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
         price_chart0 = line_chart(x= df["timestamp"], y= df["Price"], title="Current price")
         st.pyplot(price_chart0)
+
+
+
+# new design chart
+
+
+    sns.set_style("whitegrid")
+
+   
+
+# Create figure and axis objects    
+    fig, ax = plt.subplots(figsize=(12, 6))
     
-    st.markdown("# Percent change")
-    price_chart1 = line_chart(x= df["timestamp"], y= df["Percentage change in 7 days"], title="Percentage change in 7 days")
-    price_chart2 = line_chart(x= df["timestamp"], y= df["Percentage change in 1 hour"], title="Percentage change in 1 hour")
-    price_chart3 = line_chart(x= df.index, y= df["Percentage change in 24 hours"], title="Percentage change in 24 hours")
+
+# Plot multiple percentage changes for comparison
+    ax.plot(df["timestamp"], df["Percentage change in 7 days"], label="7 Days Change", marker="o", linestyle="-")
+    ax.plot(df["timestamp"], df["Percentage change in 1 hour"], label="1 Hour Change", marker="s", linestyle="--")
+    ax.plot(df["timestamp"], df["Percentage change in 24 hours"], label="24 Hours Change", marker="d", linestyle=":")
+
+# Format the x-axis for better readability
+    ax.xaxis.set_major_locator(plt.MaxNLocator(8))  # Reduce overcrowding on x-axis
+
+# Labels and Title
+    ax.set_xlabel("Timestamp", fontsize=12)
+    ax.set_ylabel("Percentage Change", fontsize=12)
+    ax.set_title("Percentage Change Over Time", fontsize=14, fontweight="bold")
+
+# Rotate x-axis labels
+    plt.xticks(rotation=45)
+
+# Add legend
+    ax.legend()
+
+# Display in Streamlit
+    st.pyplot(fig)
+
     
-    st.pyplot(price_chart2)
-    st.pyplot(price_chart1)
-    st.pyplot(price_chart3)
+
     
     pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
 
