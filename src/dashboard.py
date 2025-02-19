@@ -53,40 +53,29 @@ def board():
         st.pyplot(price_chart0)
     else:
         st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"], title="Current price")
-        st.pyplot(price_chart0)
 
 
+### **📈 Chart 1: Current Price Over Time**
+    fig1, ax1 = plt.subplots(figsize=(12, 6))
 
 #--- Change graphs
 
+# Highlighting the highest and lowest price points
+    max_price_idx = df["Price"].idxmax()
+    min_price_idx = df["Price"].idxmin()
+    ax1.scatter(df["timestamp"][max_price_idx], df["Price"][max_price_idx], color="red", s=100, label="Max Price", zorder=3)
+    ax1.scatter(df["timestamp"][min_price_idx], df["Price"][min_price_idx], color="green", s=100, label="Min Price", zorder=3)
 
-    sns.set_style("whitegrid")
-
-   
-
-# Create figure and axis objects    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
-
-# Plot multiple percentage changes for comparison
-    ax.plot(df["timestamp"], df["Percentage change in 7 days"], label="7 Days Change", marker="o", linestyle="-")
-    ax.plot(df["timestamp"], df["Percentage change in 1 hour"], label="1 Hour Change", marker="s", linestyle="--")
-    ax.plot(df["timestamp"], df["Percentage change in 24 hours"], label="24 Hours Change", marker="d", linestyle=":")
-
-# Format the x-axis for better readability
-    ax.xaxis.set_major_locator(plt.MaxNLocator(8))  # Reduce overcrowding on x-axis
-
-# Labels and Title
-    ax.set_xlabel("Timestamp", fontsize=12)
-    ax.set_ylabel("Percentage Change", fontsize=12)
-    ax.set_title("Percentage Change Over Time", fontsize=14, fontweight="bold")
-
-# Rotate x-axis labels
+# X-Axis Formatting
+    ax1.xaxis.set_major_locator(plt.MaxNLocator(8))
+    ax1.set_xlabel("Timestamp", fontsize=12)
+    ax1.set_ylabel("Price", fontsize=12)
+    ax1.set_title("📈 Current Price Over Time", fontsize=14, fontweight="bold")
     plt.xticks(rotation=45)
 
-# Add legend
-    ax.legend()
+# Add grid & legend
+    ax1.grid(True, linestyle="--", alpha=0.5)
+    ax1.legend()
 
 # Display in Streamlit
     st.pyplot(fig)
