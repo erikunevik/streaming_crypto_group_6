@@ -13,8 +13,6 @@ from currencies import get_latest_exchange_rate
 from charts import line_chart, pie_chart
 
 
-
-
 connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
     
 motor = create_engine(connection)
@@ -71,7 +69,6 @@ def board():
  
     st.markdown("# Dataframe")
     st.dataframe(df.tail())  
- 
     st.image("husky.jpg", caption="Husky Dog", use_container_width=True)
     
 if __name__== "__main__":
