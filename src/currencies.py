@@ -21,6 +21,3 @@ def get_latest_exchange_rate():
 #     "NOK" : 11.74,
 #     "EUR" : 0.96
 # }
-
-
-print(get_latest_exchange_rate()["SEK"])
