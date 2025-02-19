@@ -9,8 +9,9 @@ POSTGRES_USER,
 from sqlalchemy import create_engine
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
-from currencies import get_latest_exchange_rate
+from currencies import currencies_dict
 from charts import line_chart, pie_chart
+from pathlib import Path
 
 
 connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
@@ -37,16 +38,16 @@ def board():
 
     
     if currency_choice == "SEK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*get_latest_exchange_rate()["SEK"]).iloc[-1]:,.2f} SEK", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*get_latest_exchange_rate()["SEK"], title="Current price")
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["SEK"]).iloc[-1]:,.2f} SEK", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["SEK"], title="Current price")
         st.pyplot(price_chart0)
     elif currency_choice == "NOK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*get_latest_exchange_rate()["NOK"]).iloc[-1]:,.2f} NOK", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*get_latest_exchange_rate()["NOK"], title="Current price")
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["NOK"]).iloc[-1]:,.2f} NOK", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["NOK"], title="Current price")
         st.pyplot(price_chart0)
     elif currency_choice == "DKK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*get_latest_exchange_rate()["DKK"]).iloc[-1]:,.2f} DKK", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*get_latest_exchange_rate()["DKK"], title="Current price")
+        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["DKK"]).iloc[-1]:,.2f} DKK", border=True)
+        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["DKK"], title="Current price")
         st.pyplot(price_chart0)
     else:
         st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
@@ -69,7 +70,8 @@ def board():
  
     st.markdown("# Dataframe")
     st.dataframe(df.tail())  
-    st.image("husky.jpg", caption="Husky Dog", use_container_width=True)
+    img_path = Path(__file__).parent /"husky.jpg"
+    st.image(img_path, caption="Husky Dog", use_container_width=True)
     
 if __name__== "__main__":
     board()
