@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 
 def line_chart(x,y, **options):
     fig, ax = plt.subplots(1)
-
-    ax.plot(x, y, linewidth = 4)
+    
+    ax.plot(x, y, linewidth = 1)
 
     ax.set(**options)
-
+    plt.xticks(rotation=45)
     fig.tight_layout()
+    ax.grid(True, linestyle="--", alpha=0.5)
+    ax.xaxis.set_major_locator(plt.MaxNLocator(8))
+    ax.legend()
     return fig
 
 # Piecharts---------------------

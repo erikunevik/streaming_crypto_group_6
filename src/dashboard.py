@@ -1,10 +1,10 @@
 import streamlit as st
 from constants import (
-POSTGRES_DBNAME,
-POSTGRES_HOST,
-POSTGRES_PASSWORD,
-POSTGRES_PORT,
-POSTGRES_USER,    
+    POSTGRES_DBNAME,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_USER,
 )
 from sqlalchemy import create_engine
 import pandas as pd
@@ -15,124 +15,121 @@ from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+st.set_page_config(layout="wide")
 
 connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
-    
+
 motor = create_engine(connection)
-    
-refresh = st_autorefresh(interval=1000*10, limit=100)
+
+refresh = st_autorefresh(interval=1000 * 10, limit=100)
+
 
 def import_dashboard(quotes):
     with motor.connect() as conn:
         df = pd.read_sql(quotes, conn)
-    
+
     return df
 
-#def latest
+
+# def latest
 def board():
-    
     df = import_dashboard("SELECT * FROM quotes_coins;")
+    df["price SEK"] = df["Price"] * currencies_dict["SEK"]
+    df["price DKK"] = df["Price"] * currencies_dict["DKK"]
+    df["price NOK"] = df["Price"] * currencies_dict["NOK"]
+    df["price EUR"] = df["Price"]
+    btc_df = df[df["Name"] == "Bitcoin"]
+    sol_df = df[df["Name"] == "Solana"]
 
     st.markdown("# Crypto currency dashboard")
-    
-    currency_choice = st.selectbox("Choose crypto", ["Bitcoin","Solana"])
+    st.divider()
+    # ADD LAST UPDATED HERE
+    st.divider()
+    crypto_choice = st.selectbox("Choose crypto", ["Bitcoin", "Solana"])
     currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
 
+    price_column = f"price {currency_choice}"
+    if crypto_choice == "Bitcoin":
+        current_df = btc_df
+    elif crypto_choice == "Solana":
+        current_df = sol_df
+    st.markdown("## Latest price")
+    st.metric(
+        f"{crypto_choice}",
+        f"{current_df[price_column].iloc[-1]:,.2f} {currency_choice}",
+        border=True,
+    )
+
+
+    col1, col2, col3= st.columns(3)
+    with col1:
+        with col1:
+            current_price = line_chart(
+                current_df["timestamp"],
+                current_df["Price"],
+                title=f"Current Price {crypto_choice} ({currency_choice})",
+                xlabel="Time",
+                ylabel="Price",
+                label="Current Price",
+            )
+            st.pyplot(current_price)
+        with col2:
+            img_path = Path(__file__).parent / "husky.jpg"
+            st.image(img_path, caption="Husky Dog", use_container_width=True)
+        with col3:
+            # ---- Piechart
+            pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
+
+            total_dominance = pie_chart_df["Market cap dominance"].sum()
+            others_dominance = 100 - total_dominance
+
+            others_row = pd.DataFrame(
+                [{"Name": "Others", "Market cap dominance": others_dominance}]
+            )
+            pie_chart_df = pd.concat([pie_chart_df, others_row], ignore_index=True)
+
+            market_cap = pie_chart(
+                labels=pie_chart_df["Name"],
+                sizes=pie_chart_df["Market cap dominance"],
+                title="Market capitalization",
+            )
+
+            st.pyplot(market_cap)
     
-    if currency_choice == "SEK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["SEK"]).iloc[-1]:,.2f} SEK", border=True)
-        #price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["SEK"], title="Current price")
-        #st.pyplot(price_chart0)
-    elif currency_choice == "NOK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["NOK"]).iloc[-1]:,.2f} NOK", border=True)
-        #price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["NOK"], title="Current price")
-        #st.pyplot(price_chart0)
-    elif currency_choice == "DKK":
-        st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["DKK"]).iloc[-1]:,.2f} DKK", border=True)
-        #price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["DKK"], title="Current price")
-        #st.pyplot(price_chart0)
-    else:
-        st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
-        
-### **Chart 1: Current Price Over Time**
-    fig1,ax1 = plt.subplots(figsize=(12, 6))
+    col1, col2 = st.columns(2)
+    with col1:
+        fig1 = line_chart(
+                current_df["timestamp"],
+                current_df["Percentage change in 1 hour"],
+                title=f"1 Hour Change - {crypto_choice}",
+                xlabel="Time")
+        st.pyplot(fig1)
+    with col2:
+        fig2 = line_chart(
+                current_df["timestamp"],
+                current_df["Percentage change in 24 hours"],
+                title=f"24 Hour Change - {crypto_choice}",
+                xlabel="Time")
+        st.pyplot(fig2)
+    col1, col2 = st.columns(2)
+    with col1:
+        fig3 = line_chart(
+                current_df["timestamp"],
+                current_df["Percentage change in 7 days"],
+                title=f"7 Days Change - {crypto_choice}",
+                xlabel="Time")
+        st.pyplot(fig3)
+    with col2:
+        fig4 = line_chart(
+                current_df["timestamp"],
+                current_df["Percentage change in 30 days"],
+                title=f"30 Days Change - {crypto_choice}",
+                xlabel="Time")
+        st.pyplot(fig4)
+
+    #st.markdown("# Dataframe")
+    #st.dataframe(df.tail())
 
 
-# Set a beautiful Seaborn style
-    sns.set_style("whitegrid")
-
-    st.markdown("#Market Data Visualization")
-
-
-
-# Plot current price trend
-    ax1.plot(df["timestamp"], df["Price"], 
-        label="Current Price", marker="o", markersize=4, 
-        linestyle="-", linewidth=2, color="royalblue", alpha=0.8)
-
-# Highlighting the highest and lowest price points
-    max_price_idx = df["Price"].idxmax()
-    min_price_idx = df["Price"].idxmin()
-    ax1.scatter(df["timestamp"][max_price_idx], df["Price"][max_price_idx], color="red", s=100, label="Max Price", zorder=3)
-    ax1.scatter(df["timestamp"][min_price_idx], df["Price"][min_price_idx], color="green", s=100, label="Min Price", zorder=3)
-
-# X-Axis Formatting
-    ax1.xaxis.set_major_locator(plt.MaxNLocator(8))
-    ax1.set_xlabel("Timestamp", fontsize=12)
-    ax1.set_ylabel("Price", fontsize=12)
-    ax1.set_title("Current Price Over Time", fontsize=14, fontweight="bold")
-    plt.xticks(rotation=45)
-
-# Add grid & legend
-    ax1.grid(True, linestyle="--", alpha=0.5)
-    ax1.legend()
-
-### ** Chart 2: Percentage Change Over Time**
-    fig2, ax2 = plt.subplots(figsize=(12, 6))
-
-# Plot percentage changes
-    ax2.plot(df["timestamp"], df["Percentage change in 7 days"], label="7 Days Change", marker="o", linestyle="-", color="purple")
-    ax2.plot(df["timestamp"], df["Percentage change in 1 hour"], label="1 Hour Change", marker="s", linestyle="--", color="orange")
-    ax2.plot(df["timestamp"], df["Percentage change in 24 hours"], label="24 Hours Change", marker="d", linestyle=":", color="teal")
-
-# X-Axis Formatting
-    ax2.xaxis.set_major_locator(plt.MaxNLocator(8))
-    ax2.set_xlabel("Timestamp", fontsize=12)
-    ax2.set_ylabel("Percentage Change (%)", fontsize=12)
-    ax2.set_title("📊 Percentage Change Over Time", fontsize=14, fontweight="bold")
-    plt.xticks(rotation=45)
-
-# Add grid & legend
-    ax2.grid(True, linestyle="--", alpha=0.5)
-    ax2.legend()
-# Display in Streamlit
-    st.pyplot(fig1)
-
-# Display Second Chart
-    st.pyplot(fig2)
-
-
-    
-    
-# ---- Piechart 
-    
-    pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
-
-    total_dominance = pie_chart_df["Market cap dominance"].sum()
-    others_dominance = 100 - total_dominance
-
-    others_row = pd.DataFrame([{"Name": "Others", "Market cap dominance": others_dominance}])
-    pie_chart_df = pd.concat([pie_chart_df, others_row], ignore_index=True)
-
-    market_cap = pie_chart(labels=pie_chart_df["Name"], sizes=pie_chart_df["Market cap dominance"], title="Market capitalization")
-        
-    st.pyplot(market_cap)
-    
-    st.markdown("# Dataframe")
-    st.dataframe(df.tail())  
-    img_path = Path(__file__).parent /"husky.jpg"
-    st.image(img_path, caption="Husky Dog", use_container_width=True)
-    
-if __name__== "__main__":
+if __name__ == "__main__":
     board()
-   
