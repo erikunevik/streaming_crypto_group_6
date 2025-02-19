@@ -54,6 +54,8 @@ def board():
     else:
         st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
         
+### **Chart 1: Current Price Over Time**
+    fig1,ax1 = plt.subplots(figsize=(12, 6))
 
 
 # Set a beautiful Seaborn style
@@ -61,13 +63,12 @@ def board():
 
     st.markdown("#Market Data Visualization")
 
-### **Chart 1: Current Price Over Time**
-    fig1,ax1 = plt.subplots(figsize=(12, 6))
+
 
 # Plot current price trend
     ax1.plot(df["timestamp"], df["Price"], 
-         label="Current Price", marker="o", markersize=4, 
-         linestyle="-", linewidth=2, color="royalblue", alpha=0.8)
+        label="Current Price", marker="o", markersize=4, 
+        linestyle="-", linewidth=2, color="royalblue", alpha=0.8)
 
 # Highlighting the highest and lowest price points
     max_price_idx = df["Price"].idxmax()
