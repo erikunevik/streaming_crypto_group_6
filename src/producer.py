@@ -14,7 +14,7 @@ def main():
             for value in crypto_latest.values():
                 kafka_message = crypto_topic.serialize(key=value["symbol"], value=value)
 
-                print(f"produce event with key = {kafka_message.key}, price = {value['quote']['USD']['price']}")
+                print(f"produce event with key = {kafka_message.key}, price = {value['quote']['EUR']['price']}")
 
                 producer.produce(topic=crypto_topic.name, key= kafka_message.key, value= kafka_message.value)
             
