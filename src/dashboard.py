@@ -41,24 +41,38 @@ def board():
     
     if currency_choice == "SEK":
         st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["SEK"]).iloc[-1]:,.2f} SEK", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["SEK"], title="Current price")
-        st.pyplot(price_chart0)
+        #price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["SEK"], title="Current price")
+        #st.pyplot(price_chart0)
     elif currency_choice == "NOK":
         st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["NOK"]).iloc[-1]:,.2f} NOK", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["NOK"], title="Current price")
-        st.pyplot(price_chart0)
+        #price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["NOK"], title="Current price")
+        #st.pyplot(price_chart0)
     elif currency_choice == "DKK":
         st.metric("Latest Bitcoin price", f"{(df["Price"]*currencies_dict["DKK"]).iloc[-1]:,.2f} DKK", border=True)
-        price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["DKK"], title="Current price")
-        st.pyplot(price_chart0)
+        #price_chart0 = line_chart(x= df["timestamp"], y= df["Price"]*currencies_dict["DKK"], title="Current price")
+        #st.pyplot(price_chart0)
     else:
         st.metric("Latest Bitcoin price", f"{(df["Price"]).iloc[-1]:,.2f} EUR", border=True)
+        
 
+# Highlighting the highest and lowest price points
+    max_price_idx = df["Price"].idxmax()
+    min_price_idx = df["Price"].idxmin()
+    ax1.scatter(df["timestamp"][max_price_idx], df["Price"][max_price_idx], color="red", s=100, label="Max Price", zorder=3)
+    ax1.scatter(df["timestamp"][min_price_idx], df["Price"][min_price_idx], color="green", s=100, label="Min Price", zorder=3)
 
-### **📈 Chart 1: Current Price Over Time**
-    fig1, ax1 = plt.subplots(figsize=(12, 6))
+# Set a beautiful Seaborn style
+    sns.set_style("whitegrid")
 
-#--- Change graphs
+    st.markdown("#Market Data Visualization")
+
+### **Chart 1: Current Price Over Time**
+    fig1,ax1 = plt.subplots(figsize=(12, 6))
+
+# Plot current price trend
+    ax1.plot(df["timestamp"], df["Price"], 
+         label="Current Price", marker="o", markersize=4, 
+         linestyle="-", linewidth=2, color="royalblue", alpha=0.8)
 
 # Highlighting the highest and lowest price points
     max_price_idx = df["Price"].idxmax()
@@ -70,15 +84,38 @@ def board():
     ax1.xaxis.set_major_locator(plt.MaxNLocator(8))
     ax1.set_xlabel("Timestamp", fontsize=12)
     ax1.set_ylabel("Price", fontsize=12)
-    ax1.set_title("📈 Current Price Over Time", fontsize=14, fontweight="bold")
+    ax1.set_title("Current Price Over Time", fontsize=14, fontweight="bold")
     plt.xticks(rotation=45)
 
 # Add grid & legend
     ax1.grid(True, linestyle="--", alpha=0.5)
     ax1.legend()
 
+### ** Chart 2: Percentage Change Over Time**
+    fig2, ax2 = plt.subplots(figsize=(12, 6))
+
+# Plot percentage changes
+    ax2.plot(df["timestamp"], df["Percentage change in 7 days"], label="7 Days Change", marker="o", linestyle="-", color="purple")
+    ax2.plot(df["timestamp"], df["Percentage change in 1 hour"], label="1 Hour Change", marker="s", linestyle="--", color="orange")
+    ax2.plot(df["timestamp"], df["Percentage change in 24 hours"], label="24 Hours Change", marker="d", linestyle=":", color="teal")
+
+# X-Axis Formatting
+    ax2.xaxis.set_major_locator(plt.MaxNLocator(8))
+    ax2.set_xlabel("Timestamp", fontsize=12)
+    ax2.set_ylabel("Percentage Change (%)", fontsize=12)
+    ax2.set_title("📊 Percentage Change Over Time", fontsize=14, fontweight="bold")
+    plt.xticks(rotation=45)
+
+# Add grid & legend
+    ax2.grid(True, linestyle="--", alpha=0.5)
+    ax2.legend()
 # Display in Streamlit
-    st.pyplot(fig)
+    st.pyplot(fig1)
+
+# Display Second Chart
+    st.pyplot(fig2)
+
+
     
     
 # ---- Piechart 
