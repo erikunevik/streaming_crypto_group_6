@@ -58,7 +58,7 @@ def board():
 
 
 
-# new design chart
+#--- Change graphs
 
 
     sns.set_style("whitegrid")
@@ -90,15 +90,22 @@ def board():
 
 # Display in Streamlit
     st.pyplot(fig)
-
     
-
+    
+# ---- Piechart 
     
     pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
 
+    total_dominance = pie_chart_df["Market cap dominance"].sum()
+    others_dominance = 100 - total_dominance
+
+    others_row = pd.DataFrame([{"Name": "Others", "Market cap dominance": others_dominance}])
+    pie_chart_df = pd.concat([pie_chart_df, others_row], ignore_index=True)
+
     market_cap = pie_chart(labels=pie_chart_df["Name"], sizes=pie_chart_df["Market cap dominance"], title="Market capitalization")
+        
     st.pyplot(market_cap)
- 
+    
     st.markdown("# Dataframe")
     st.dataframe(df.tail())  
     img_path = Path(__file__).parent /"husky.jpg"
