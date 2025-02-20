@@ -19,12 +19,15 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
+#-- Creating connection to psotgres
+
 connection = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
 
 motor = create_engine(connection)
 
 refresh = st_autorefresh(interval=1000 * 10, limit=100)
 
+#--Fetching DF
 
 
 def import_dashboard(quotes):
@@ -34,7 +37,7 @@ def import_dashboard(quotes):
     return df
 
 
-   
+ # Creating currency converter for dashboard
 def board():
     df = import_dashboard("SELECT * FROM quotes_coins;")
     df["price SEK"] = df["Price"] * currencies_dict["SEK"]
@@ -44,7 +47,6 @@ def board():
     btc_df = df[df["Name"] == "Bitcoin"]
     sol_df = df[df["Name"] == "Solana"]
     
-    
 # ---- Main headline of dashboard
 
     st.markdown("# Crypto currency dashboard")
@@ -52,7 +54,7 @@ def board():
    
 
 
-# --- Time stamp function to get latest update
+ # --- Time stamp function to get latest update
     def get_latest_update():
         query = "SELECT MAX(timestamp) AS latest_update FROM quotes_coins;"
         df = pd.read_sql_query(query, motor)
@@ -60,11 +62,10 @@ def board():
         if df.empty or df["latest_update"][0] is None:
             return "No data available"
 
-        # Convert timestamp to string format without milliseconds
         latest_update = pd.to_datetime(df["latest_update"][0]).strftime("%Y-%m-%d %H:%M:%S")
         return latest_update
 
-    # Display the latest timestamp in Streamlit
+            
     latest_update = get_latest_update()
     st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
 
@@ -76,7 +77,7 @@ def board():
     crypto_choice = st.selectbox("Choose crypto", ["Bitcoin", "Solana"])
     currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
     
-#---- Getting the latest price
+ #---- Getting the latest price
 
     price_column = f"price {currency_choice}"
     if crypto_choice == "Bitcoin":
@@ -92,8 +93,11 @@ def board():
 
 
     col1, col2, col3= st.columns(3)
+    
+# ---- Current price chart
+    
     with col1:
-        #with col1:
+        
             current_price = line_chart(
                 current_df["timestamp"],
                 current_df[price_column],
@@ -103,13 +107,14 @@ def board():
                 label="Current Price",
             )
             st.pyplot(current_price)
+# ---- team picture 
     with col2:
             img_path = Path(__file__).parent / "husky.jpg"
-            st.image(img_path, caption="Husky Dog", use_container_width=True)
+            st.image(img_path, use_container_width=True)
+                
+# ---- Piechart
     with col3:
-            
-            
-            # ---- Piechart
+                      
             pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
 
             total_dominance = pie_chart_df["Market cap dominance"].sum()
@@ -127,7 +132,12 @@ def board():
             )
 
             st.pyplot(market_cap)
+    
+#---- Creating 4 change graphs
+            
+
     colors = ["red", "blue", "green", "orange"]
+    
     col1, col2 = st.columns(2)
     with col1:
         fig1, ax1 = plt.subplots(figsize=(10, 4))
@@ -135,7 +145,6 @@ def board():
                 current_df["timestamp"],
                 current_df["Percentage change in 1 hour"],
                 #title=f"1 Hour Change - {crypto_choice}",
-                color=colors[0], 
                 #marker="o",
                 linestyle="-",
                 linewidth=2,
@@ -145,12 +154,17 @@ def board():
         ax1.set_ylabel("Change (%)", fontsize=12)
         ax1.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig1)
+        
+
+
     with col2:
         fig2 = line_chart(
                 current_df["timestamp"],
                 current_df["Percentage change in 24 hours"],
                 title=f"24 Hour Change - {crypto_choice}",
-                xlabel="Time")
+                xlabel="Time",
+                hour_format=True # To enable adding minutes
+                )
         st.pyplot(fig2)
     col1, col2 = st.columns(2)
     with col1:
@@ -167,10 +181,6 @@ def board():
                 title=f"30 Days Change - {crypto_choice}",
                 xlabel="Time")
         st.pyplot(fig4)
-
-    #st.markdown("# Dataframe")
-    #st.dataframe(df.tail())
-
 
 if __name__ == "__main__":
     board()
