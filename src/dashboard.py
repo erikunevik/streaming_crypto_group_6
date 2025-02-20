@@ -56,10 +56,18 @@ def board():
     def get_latest_update():
         query = "SELECT MAX(timestamp) AS latest_update FROM quotes_coins;"
         df = pd.read_sql_query(query, motor)
-        return df["latest_update"][0] if not df.empty else "No data available"
 
+        if df.empty or df["latest_update"][0] is None:
+            return "No data available"
+
+        # Convert timestamp to string format without milliseconds
+        latest_update = pd.to_datetime(df["latest_update"][0]).strftime("%Y-%m-%d %H:%M:%S")
+        return latest_update
+
+    # Display the latest timestamp in Streamlit
     latest_update = get_latest_update()
     st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
+
     
 #---- Choose crypto and currency boxes
 
