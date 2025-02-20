@@ -1,3 +1,5 @@
+
+# Hardcoded due to limited free API calls
 currencies_dict = {
     "SEK": 11.20,
     "DKK": 7.46,

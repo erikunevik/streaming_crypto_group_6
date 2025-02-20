@@ -10,6 +10,7 @@ from constants import (
     POSTGRES_PORT,
 )
 
+#--- Retrieving relevant data fpr postgres and dashboard
 def retrieve_coins_info(coin):
     quote_data = coin["quote"]["EUR"]
     return {    
@@ -25,6 +26,8 @@ def retrieve_coins_info(coin):
         "Percentage change in 30 days": quote_data["percent_change_30d"],
         "Last updated": quote_data["last_updated"],
     }
+    
+# ---- Sink into postgres and creating a table
 
 def create_postgres_sink():
     sink = PostgreSQLSink(
