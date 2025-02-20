@@ -88,7 +88,7 @@ def board():
         with col1:
             current_price = line_chart(
                 current_df["timestamp"],
-                current_df["Price"],
+                current_df[price_column],
                 title=f"Current Price {crypto_choice} ({currency_choice})",
                 xlabel="Time",
                 ylabel="Price",
