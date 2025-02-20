@@ -93,7 +93,7 @@ def board():
 
     col1, col2, col3= st.columns(3)
     with col1:
-        with col1:
+        #with col1:
             current_price = line_chart(
                 current_df["timestamp"],
                 current_df[price_column],
@@ -103,10 +103,10 @@ def board():
                 label="Current Price",
             )
             st.pyplot(current_price)
-        with col2:
+    with col2:
             img_path = Path(__file__).parent / "husky.jpg"
             st.image(img_path, caption="Husky Dog", use_container_width=True)
-        with col3:
+    with col3:
             
             
             # ---- Piechart
@@ -127,14 +127,23 @@ def board():
             )
 
             st.pyplot(market_cap)
-    
+    colors = ["red", "blue", "green", "orange"]
     col1, col2 = st.columns(2)
     with col1:
-        fig1 = line_chart(
+        fig1, ax1 = plt.subplots(figsize=(10, 4))
+        ax1.plot(
                 current_df["timestamp"],
                 current_df["Percentage change in 1 hour"],
-                title=f"1 Hour Change - {crypto_choice}",
-                xlabel="Time")
+                #title=f"1 Hour Change - {crypto_choice}",
+                color=colors[0], 
+                #marker="o",
+                linestyle="-",
+                linewidth=2,
+        )
+        ax1.set_title(f"1 Hour Change - {crypto_choice}", fontsize=14, fontweight="bold")
+        ax1.set_xlabel("Time", fontsize=12)
+        ax1.set_ylabel("Change (%)", fontsize=12)
+        ax1.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig1)
     with col2:
         fig2 = line_chart(
