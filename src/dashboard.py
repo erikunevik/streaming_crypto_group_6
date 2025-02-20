@@ -43,28 +43,32 @@ def board():
     df["price EUR"] = df["Price"]
     btc_df = df[df["Name"] == "Bitcoin"]
     sol_df = df[df["Name"] == "Solana"]
+    
+    
+# ---- Main headline of dashboard
 
     st.markdown("# Crypto currency dashboard")
     st.divider()
    
 
 
-#  Function to fetch the latest timestamp
+# --- Time stamp function to get latest update
     def get_latest_update():
         query = "SELECT MAX(timestamp) AS latest_update FROM quotes_coins;"
         df = pd.read_sql_query(query, motor)
         return df["latest_update"][0] if not df.empty else "No data available"
 
-
-
-#  Display the latest timestamp
     latest_update = get_latest_update()
     st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
+    
+#---- Choose crypto and currency boxes
 
 
     st.divider()
     crypto_choice = st.selectbox("Choose crypto", ["Bitcoin", "Solana"])
     currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
+    
+#---- Getting the latest price
 
     price_column = f"price {currency_choice}"
     if crypto_choice == "Bitcoin":
@@ -95,6 +99,8 @@ def board():
             img_path = Path(__file__).parent / "husky.jpg"
             st.image(img_path, caption="Husky Dog", use_container_width=True)
         with col3:
+            
+            
             # ---- Piechart
             pie_chart_df = df[["Name", "Market cap dominance"]].iloc[-2:]
 
