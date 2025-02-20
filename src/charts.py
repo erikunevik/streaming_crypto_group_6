@@ -12,7 +12,7 @@ def line_chart(x,y, **options):
     fig.tight_layout()
     ax.grid(True, linestyle="--", alpha=0.5)
     ax.xaxis.set_major_locator(plt.MaxNLocator(8))
-    ax.legend()
+    #ax.legend()
     return fig
 
 # Piecharts---------------------
