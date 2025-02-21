@@ -14,6 +14,7 @@ from charts import line_chart, pie_chart
 from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import datetime
 
 
 st.set_page_config(layout="wide")
@@ -52,7 +53,7 @@ def board():
 
 
  # --- Time stamp function to get latest update with fetching postgres again
-    latest_update = pd.to_datetime(df["Last updated"].iloc[-1]).strftime("%Y-%m-%d %H:%M:%S")
+    latest_update = pd.to_datetime(df["timestamp"].iloc[-1]).strftime("%Y-%m-%d %H:%M:%S")
     st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
 
     
@@ -88,8 +89,7 @@ def board():
                 current_df[price_column],
                 title = f"Current Price {crypto_choice} ({currency_choice})",
                 xlabel="Time",
-                ylabel="Price",
-                label="Current Price"
+                ylabel="Price"
             )
             st.pyplot(current_price)
 # ---- team picture 
