@@ -14,7 +14,6 @@ from charts import line_chart, pie_chart
 from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import datetime
 
 
 st.set_page_config(layout="wide")
@@ -49,7 +48,6 @@ def board():
 
     st.markdown("# Crypto currency dashboard")
     st.divider()
-   
 
 
  # --- Time stamp function to get latest update with fetching postgres again
@@ -119,18 +117,14 @@ def board():
             st.pyplot(market_cap)
     
 #---- Creating 4 change graphs
-            
-    current_df["timestamp"] = pd.to_datetime(current_df["timestamp"])
-    last_hour = current_df["timestamp"].max() - pd.Timedelta(hours=1)
-    filtered_df = current_df[current_df["timestamp"] >= last_hour]
     colors = ['#155263', '#ff6f3c', '#ff9a3c', '#ffc93c']
     
     col1, col2 = st.columns(2)
     with col1:
         fig1, ax1 = plt.subplots(figsize=(6, 4))
         ax1.plot(
-                filtered_df["timestamp"],
-                filtered_df["Percentage change in 1 hour"],
+                current_df["timestamp"],
+                current_df["Percentage change in 1 hour"],
                 color=colors[0],
                 linestyle="-",
                 linewidth=2,    
@@ -188,9 +182,6 @@ def board():
                 current_df["Percentage change in 30 days"],
                 color=colors[3]
         )
-       
-        #+ax4.xaxis.set_major_locator(mdates.DayLocator(interval=5))  
-        #ax4.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
         my_xfmt = mdates.DateFormatter('%y-%m-%d %H:%M')
         ax4.xaxis.set_major_formatter(my_xfmt)
         plt.xticks(rotation=45)  
@@ -234,6 +225,7 @@ def board():
                     "volume_24h": "Volume 24h"
                 }
             )
+    
     
 if __name__ == "__main__":
     board()
