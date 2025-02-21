@@ -216,5 +216,40 @@ def board():
         ax4.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig4)
 
+    #Adding top 10 from listings endpoint
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("# Top 10 cryptos by market cap")
+        top_df = import_dashboard("SELECT * FROM cap_top_10;")
+        top_df["Rank"] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        st.dataframe(
+            top_df,
+            width=1000,
+            hide_index=True,
+            column_order=("Rank", "name", "symbol", "market_cap", "market_cap_dominance"),
+            column_config={
+                "name": "Crypto",
+                "symbol": "Symbol",
+                "market_cap": "Market Cap (EUR)",
+                "market_cap_dominance": "Market Share (%)",
+            }
+        )
+    with col2:
+        st.markdown("# Most traded (24h)")
+        vol_df = import_dashboard("SELECT * FROM vol_top_10;")
+        vol_df["Rank"] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        st.dataframe(
+                vol_df, 
+                width=1000,
+                hide_index=True,
+                column_order=("Rank", "name", "symbol", "volume_24h"),
+                column_config={
+                    "name": "Crypto",
+                    "symbol": "Symbol",
+                    "volume_24h": "Volume 24h"
+                }
+            )
+    
 if __name__ == "__main__":
     board()
