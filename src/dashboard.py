@@ -136,21 +136,26 @@ def board():
     
 #---- Creating 4 change graphs
             
-
-    colors = ["red", "blue", "green", "orange"]
+    current_df["timestamp"] = pd.to_datetime(current_df["timestamp"])
+    last_hour = current_df["timestamp"].max() - pd.Timedelta(hours=1)
+    filtered_df = current_df[current_df["timestamp"] >= last_hour]
+    colors = ['#155263', '#ff6f3c', '#ff9a3c', '#ffc93c']
     
     col1, col2 = st.columns(2)
     with col1:
-        fig1, ax1 = plt.subplots(figsize=(8, 4))
+        fig1, ax1 = plt.subplots(figsize=(6, 4))
         ax1.plot(
-                current_df["timestamp"],
-                current_df["Percentage change in 1 hour"],
-                #title=f"1 Hour Change - {crypto_choice}",
-                #marker="o",
+                filtered_df["timestamp"],
+                filtered_df["Percentage change in 1 hour"],
+                color=colors[0],
                 linestyle="-",
                 linewidth=2,
+                
         )
-        ax1.set_title(f"1 Hour Change - {crypto_choice}", fontsize=14, fontweight="bold")
+        ax1.xaxis.set_major_locator(mdates.MinuteLocator(interval=10)) 
+        ax1.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))  
+        plt.xticks(rotation=45)  
+        ax1.set_title(f"1 Hour Change - {crypto_choice}", fontsize=12, fontweight="bold")
         ax1.set_xlabel("Time", fontsize=12)
         ax1.set_ylabel("Change (%)", fontsize=12)
         ax1.grid(True, linestyle="--", alpha=0.5)
@@ -159,38 +164,56 @@ def board():
 
 
     with col2:
-        fig2, ax2 = plt.subplots(figsize=(8, 4))
+        fig2, ax2 = plt.subplots(figsize=(6, 4))
         ax2.plot(
                 current_df["timestamp"],
                 current_df["Percentage change in 24 hours"],
-                #title=f"24 Hour Change - {crypto_choice}",
-                #xlabel="Time",
-                #hour_format=True # To enable adding minutes
+                color=colors[1],
                 linestyle="-",
                 linewidth=2,
         )
-        # Format X-axis to show hourly time with minutes
-        ax2.xaxis.set_major_locator(mdates.HourLocator(interval=2))  # Show every 2 hours
-        ax2.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))  # Format as HH:MM
-        ax2.set_title(f"24 Hour Change - {crypto_choice}", fontsize=14, fontweight="bold")
+
+        ax2.xaxis.set_major_locator(mdates.HourLocator(interval=1))  
+        ax2.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))  
+        ax2.set_title(f"24 Hour Change - {crypto_choice}", fontsize=12, fontweight="bold")
         ax2.set_xlabel("Time(Hourly)", fontsize=12)
         ax2.set_ylabel("Change (%)", fontsize=12)
         ax2.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig2)
     col1, col2 = st.columns(2)
     with col1:
-        fig3 = line_chart(
+        fig3, ax3 = plt.subplots(figsize=(6, 4))
+        ax3.plot(
                 current_df["timestamp"],
                 current_df["Percentage change in 7 days"],
-                title=f"7 Days Change - {crypto_choice}",
-                xlabel="Time")
+                color=colors[2],
+                linestyle="-",
+                linewidth=2,
+        )
+        ax3.xaxis.set_major_locator(mdates.DayLocator(interval=1))  
+        ax3.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d")) 
+        plt.xticks(rotation=45)
+        ax3.set_title(f"7 days change - {crypto_choice}", fontsize=12, fontweight="bold")
+        ax3.set_xlabel("Date", fontsize=12)
+        ax3.set_ylabel("Change (%)", fontsize=12)
+        ax3.grid(True, linestyle="--", alpha=0.5)
+        
         st.pyplot(fig3)
     with col2:
-        fig4 = line_chart(
+        fig4, ax4 = plt.subplots(figsize=(6, 4))
+        ax4.plot(
                 current_df["timestamp"],
                 current_df["Percentage change in 30 days"],
-                title=f"30 Days Change - {crypto_choice}",
-                xlabel="Time")
+                color=colors[3]
+        )
+       
+        ax4.xaxis.set_major_locator(mdates.DayLocator(interval=5))  
+        ax4.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d")) 
+        plt.xticks(rotation=45)  
+        ax4.set_title(f"30 days change - {crypto_choice}", fontsize=12, fontweight="bold")
+        ax4.set_xlabel("Date", fontsize=12)
+        ax4.set_ylabel("Change (%)", fontsize=12)
+        ax4.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig4)
 
 if __name__ == "__main__":
