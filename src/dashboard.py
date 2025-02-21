@@ -12,10 +12,8 @@ from streamlit_autorefresh import st_autorefresh
 from currencies import currencies_dict
 from charts import line_chart, pie_chart
 from pathlib import Path
-import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
 
 
 st.set_page_config(layout="wide")
@@ -28,9 +26,7 @@ motor = create_engine(connection)
 
 refresh = st_autorefresh(interval=1000 * 10, limit=100)
 
-#--Fetching DF
-
-
+#--Fetching postgres
 def import_dashboard(quotes):
     with motor.connect() as conn:
         df = pd.read_sql(quotes, conn)
@@ -38,7 +34,7 @@ def import_dashboard(quotes):
     return df
 
 
- # Creating currency converter for dashboard
+# Creating currency converter for dashboard
 def board():
     df = import_dashboard("SELECT * FROM quotes_coins;")
     df["price SEK"] = df["Price"] * currencies_dict["SEK"]
@@ -55,19 +51,8 @@ def board():
    
 
 
- # --- Time stamp function to get latest update
-    def get_latest_update():
-        query = "SELECT MAX(timestamp) AS latest_update FROM quotes_coins;"
-        df = pd.read_sql_query(query, motor)
-
-        if df.empty or df["latest_update"][0] is None:
-            return "No data available"
-
-        latest_update = pd.to_datetime(df["latest_update"][0]).strftime("%Y-%m-%d %H:%M:%S")
-        return latest_update
-
-            
-    latest_update = get_latest_update()
+ # --- Time stamp function to get latest update with fetching postgres again
+    latest_update = pd.to_datetime(df["Last updated"].iloc[-1]).strftime("%Y-%m-%d %H:%M:%S")
     st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
 
     
@@ -96,16 +81,15 @@ def board():
     col1, col2, col3= st.columns(3)
     
 # ---- Current price chart
-    
+    st.divider()
     with col1:
-        
             current_price = line_chart(
                 current_df["timestamp"],
                 current_df[price_column],
-                title=f"Current Price {crypto_choice} ({currency_choice})",
+                title = f"Current Price {crypto_choice} ({currency_choice})",
                 xlabel="Time",
                 ylabel="Price",
-                label="Current Price",
+                label="Current Price"
             )
             st.pyplot(current_price)
 # ---- team picture 
@@ -149,19 +133,16 @@ def board():
                 filtered_df["Percentage change in 1 hour"],
                 color=colors[0],
                 linestyle="-",
-                linewidth=2,
-                
+                linewidth=2,    
         )
-        ax1.xaxis.set_major_locator(mdates.MinuteLocator(interval=10)) 
-        ax1.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))  
+        my_xfmt = mdates.DateFormatter('%y-%m-%d %H:%M')
+        ax1.xaxis.set_major_formatter(my_xfmt)
         plt.xticks(rotation=45)  
         ax1.set_title(f"1 Hour Change - {crypto_choice}", fontsize=12, fontweight="bold")
         ax1.set_xlabel("Time", fontsize=12)
         ax1.set_ylabel("Change (%)", fontsize=12)
         ax1.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig1)
-        
-
 
     with col2:
         fig2, ax2 = plt.subplots(figsize=(6, 4))
@@ -171,15 +152,16 @@ def board():
                 color=colors[1],
                 linestyle="-",
                 linewidth=2,
-        )
-
-        ax2.xaxis.set_major_locator(mdates.HourLocator(interval=1))  
-        ax2.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))  
+        )  
+        my_xfmt = mdates.DateFormatter('%y-%m-%d %H:%M')
+        ax2.xaxis.set_major_formatter(my_xfmt)
+        plt.xticks(rotation=45)  
         ax2.set_title(f"24 Hour Change - {crypto_choice}", fontsize=12, fontweight="bold")
-        ax2.set_xlabel("Time(Hourly)", fontsize=12)
+        ax2.set_xlabel("Time", fontsize=12)
         ax2.set_ylabel("Change (%)", fontsize=12)
         ax2.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig2)
+
     col1, col2 = st.columns(2)
     with col1:
         fig3, ax3 = plt.subplots(figsize=(6, 4))
@@ -190,8 +172,8 @@ def board():
                 linestyle="-",
                 linewidth=2,
         )
-        ax3.xaxis.set_major_locator(mdates.DayLocator(interval=1))  
-        ax3.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d")) 
+        my_xfmt = mdates.DateFormatter('%y-%m-%d %H:%M')
+        ax3.xaxis.set_major_formatter(my_xfmt)
         plt.xticks(rotation=45)
         ax3.set_title(f"7 days change - {crypto_choice}", fontsize=12, fontweight="bold")
         ax3.set_xlabel("Date", fontsize=12)
@@ -207,8 +189,10 @@ def board():
                 color=colors[3]
         )
        
-        ax4.xaxis.set_major_locator(mdates.DayLocator(interval=5))  
-        ax4.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d")) 
+        #+ax4.xaxis.set_major_locator(mdates.DayLocator(interval=5))  
+        #ax4.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+        my_xfmt = mdates.DateFormatter('%y-%m-%d %H:%M')
+        ax4.xaxis.set_major_formatter(my_xfmt)
         plt.xticks(rotation=45)  
         ax4.set_title(f"30 days change - {crypto_choice}", fontsize=12, fontweight="bold")
         ax4.set_xlabel("Date", fontsize=12)

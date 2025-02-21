@@ -1,16 +1,19 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+
 # Linecharts--------
 def line_chart(x, y, hour_format=False, **options):
     fig, ax = plt.subplots(1)
     
-    ax.plot(x, y, linewidth=1)
+    ax.plot(x, y, linewidth=2)
     ax.set(**options)
     plt.xticks(rotation=45)
-    fig.tight_layout()
     ax.grid(True, linestyle="--", alpha=0.5)
-    ax.xaxis.set_major_locator(plt.MaxNLocator(8))
+    ax.set_title(label= options["title"], fontsize=12, fontweight="bold")
+    my_xfmt = mdates.DateFormatter('%y-%m-%d %H:%M')
+    ax.xaxis.set_major_formatter(my_xfmt)
+    ax.yaxis.set_major_formatter('{x:,.0f}')
 
 # -------- To be able to give minutes to 24 hour graph
     if hour_format:
@@ -27,7 +30,8 @@ def pie_chart(labels, sizes, **options):
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
     
     if 'title' in options:
-        ax.set_title(options['title'])
+        ax.set_title(options['title'], fontsize=12, fontweight="bold")
+ 
     
     fig.tight_layout()
     return fig
