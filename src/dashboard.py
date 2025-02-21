@@ -14,6 +14,7 @@ from charts import line_chart, pie_chart
 from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 
 
@@ -140,7 +141,7 @@ def board():
     
     col1, col2 = st.columns(2)
     with col1:
-        fig1, ax1 = plt.subplots(figsize=(10, 4))
+        fig1, ax1 = plt.subplots(figsize=(8, 4))
         ax1.plot(
                 current_df["timestamp"],
                 current_df["Percentage change in 1 hour"],
@@ -158,13 +159,23 @@ def board():
 
 
     with col2:
-        fig2 = line_chart(
+        fig2, ax2 = plt.subplots(figsize=(8, 4))
+        ax2.plot(
                 current_df["timestamp"],
                 current_df["Percentage change in 24 hours"],
-                title=f"24 Hour Change - {crypto_choice}",
-                xlabel="Time",
-                hour_format=True # To enable adding minutes
-                )
+                #title=f"24 Hour Change - {crypto_choice}",
+                #xlabel="Time",
+                #hour_format=True # To enable adding minutes
+                linestyle="-",
+                linewidth=2,
+        )
+        # Format X-axis to show hourly time with minutes
+        ax2.xaxis.set_major_locator(mdates.HourLocator(interval=2))  # Show every 2 hours
+        ax2.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))  # Format as HH:MM
+        ax2.set_title(f"24 Hour Change - {crypto_choice}", fontsize=14, fontweight="bold")
+        ax2.set_xlabel("Time(Hourly)", fontsize=12)
+        ax2.set_ylabel("Change (%)", fontsize=12)
+        ax2.grid(True, linestyle="--", alpha=0.5)
         st.pyplot(fig2)
     col1, col2 = st.columns(2)
     with col1:
