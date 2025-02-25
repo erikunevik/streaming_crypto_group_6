@@ -9,7 +9,6 @@ from constants import (
 from sqlalchemy import create_engine
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
-from currencies import currencies_dict
 from charts import line_chart, pie_chart
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -36,10 +35,11 @@ def import_dashboard(quotes):
 
 # Creating currency converter for dashboard
 def board():
-    df = import_dashboard("SELECT * FROM quotes_coins;")
-    df["price SEK"] = df["Price"] * currencies_dict["SEK"]
-    df["price DKK"] = df["Price"] * currencies_dict["DKK"]
-    df["price NOK"] = df["Price"] * currencies_dict["NOK"]
+    df = import_dashboard("SELECT * FROM quotes_coins ORDER BY timestamp;")
+    currency_df = import_dashboard("SELECT * FROM currency_table;")
+    df["price SEK"] = df["Price"] * currency_df["SEK"].iloc[-1]
+    df["price DKK"] = df["Price"] * currency_df["DKK"].iloc[-1]
+    df["price NOK"] = df["Price"] * currency_df["NOK"].iloc[-1]
     df["price EUR"] = df["Price"]
     btc_df = df[df["Name"] == "Bitcoin"]
     sol_df = df[df["Name"] == "Solana"]
@@ -55,27 +55,27 @@ def board():
     st.markdown(f"##### 🕒 Latest Update: **{latest_update}**")
 
     
-#---- Choose crypto and currency boxes
-
+#---- Crypto and currency dropdowns set the page config
 
     st.divider()
     crypto_choice = st.selectbox("Choose crypto", ["Bitcoin", "Solana"])
     currency_choice = st.selectbox("Choose currency", ["SEK", "NOK", "DKK", "EUR"])
     
- #---- Getting the latest price
+ #---- Getting the latest price and setting the correct config
 
-    price_column = f"price {currency_choice}"
     if crypto_choice == "Bitcoin":
         current_df = btc_df
     elif crypto_choice == "Solana":
         current_df = sol_df
+    
+#---- Getting and pesenting latest price
     st.markdown("## Latest price")
+    price_column = f"price {currency_choice}"
     st.metric(
         f"{crypto_choice}",
         f"{current_df[price_column].iloc[-1]:,.2f} {currency_choice}",
         border=True,
     )
-
 
     col1, col2, col3= st.columns(3)
     
